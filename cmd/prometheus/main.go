@@ -460,9 +460,9 @@ func main() {
 		}
 		cfg.tsdb.MaxExemplars = int64(cfgFile.StorageConfig.ExemplarsConfig.MaxExemplars)
 	}
-	if cfgFile.StorageConfig.TSDBConfig != nil {
-		cfg.tsdb.OutOfOrderTimeWindow = cfgFile.StorageConfig.TSDBConfig.OutOfOrderTimeWindow
-	}
+
+	level.Warn(logger).Log("msg", "Setting OutofOrderTimeWindow to hardcoded default of 30 min")
+	cfg.tsdb.OutOfOrderTimeWindow = 30 * time.Minute.Milliseconds()
 
 	// Now that the validity of the config is established, set the config
 	// success metrics accordingly, although the config isn't really loaded
@@ -1550,8 +1550,8 @@ func (opts tsdbOptions) ToTSDBOptions() tsdb.Options {
 		RetentionDuration:              int64(time.Duration(opts.RetentionDuration) / time.Millisecond),
 		MaxBytes:                       int64(opts.MaxBytes),
 		NoLockfile:                     opts.NoLockfile,
-		AllowOverlappingCompaction:     opts.AllowOverlappingBlocks,
-		AllowOverlappingQueries:        opts.AllowOverlappingBlocks,
+		AllowOverlappingCompaction:     true,
+		AllowOverlappingQueries:        true,
 		WALCompression:                 opts.WALCompression,
 		HeadChunksWriteQueueSize:       opts.HeadChunksWriteQueueSize,
 		StripeSize:                     opts.StripeSize,
@@ -1560,7 +1560,7 @@ func (opts tsdbOptions) ToTSDBOptions() tsdb.Options {
 		EnableExemplarStorage:          opts.EnableExemplarStorage,
 		MaxExemplars:                   opts.MaxExemplars,
 		EnableMemorySnapshotOnShutdown: opts.EnableMemorySnapshotOnShutdown,
-		OutOfOrderTimeWindow:           opts.OutOfOrderTimeWindow,
+		OutOfOrderTimeWindow:           30 * time.Minute.Milliseconds(),
 	}
 }
 
